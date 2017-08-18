@@ -1,6 +1,7 @@
 package hagai.edu.multitouchandappintro;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
@@ -10,20 +11,19 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.HashMap;
-
 /**
- * Dispaly multiple finger pointers on the view as Circles
+ * Display multiple finger pointers on the view as Circles.
  */
 
 public class MultiTouchView extends View {
 
-    //constructor
+    //Constructors:
     public MultiTouchView(Context context) {
-        super(context, null);
+        this(context, null);
     }
 
     public MultiTouchView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs, 0);
+        this(context, attrs, 0);
     }
 
     public MultiTouchView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -33,14 +33,15 @@ public class MultiTouchView extends View {
 
     private int pointerCircleSize = 60;
     private Paint mPaint;
+
     private int[] colors = {
             Color.BLACK,
             Color.BLUE,
             Color.GREEN,
             Color.MAGENTA,
             Color.YELLOW,
-            Color.RED,
             Color.CYAN,
+            Color.RED,
             Color.GRAY,
             Color.DKGRAY,
             Color.LTGRAY
@@ -48,36 +49,70 @@ public class MultiTouchView extends View {
 
     private HashMap<Integer, PointF> mActivePointers;
 
-    //A Funnel point for all the constructors
+    //A Funnel point for all the constructors:
     private void init() {
         mActivePointers = new HashMap<>();//TODO: Better performance...
-        //InteliJ suggests using a sparseArray instead.
-
+        //INTELIJ suggests using a sparseArray instead.
         mPaint = new Paint();
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mPaint.setAntiAlias(true);
-
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        //x,y & action
+        //x,y & masked Action (Supports MultiTouch)
         int actionMasked = e.getActionMasked();
-        switch (actionMasked) {
+
+        //get the pointer index:
+        int pointerIndex = e.getActionIndex();
+
+        //get the pointer id:
+        int pointerId = e.getPointerId(pointerIndex);
+
+        switch (actionMasked){
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                //code here
+                //Construct a point for the current pointerIndex:
+                PointF pointF = new PointF(e.getX(pointerIndex), e.getY(pointerIndex));
+
+                //Save the pointer to the map of active pointers:
+                mActivePointers.put(pointerId, pointF);
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                //for loop over the fingers
+                //for loop over the fingers.
+                int size = e.getPointerCount();
+                for (int i = 0; i < size; i++) {
+                    //what is the id of this index?
+                    //inside the loop we have pointer indices-> and we get the id
+
+                    // get the memory address for the point
+                    PointF p = mActivePointers.get(e.getPointerId(i));
+                    //update the current move position for the finger:
+                    p.x = e.getX(i);
+                    p.y = e.getY(i);
+                }
                 break;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
+                mActivePointers.remove(pointerId);
                 break;
         }
-
+        invalidate();
         return true;
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        //draw all the pointers:
+        for (Integer pointerID : mActivePointers.keySet()) {
+            mPaint.setColor(colors[pointerID % colors.length]);
+
+            PointF pointF = mActivePointers.get(pointerID);
+            canvas.drawCircle(pointF.x, pointF.y, pointerCircleSize, mPaint);
+        }
     }
 }
