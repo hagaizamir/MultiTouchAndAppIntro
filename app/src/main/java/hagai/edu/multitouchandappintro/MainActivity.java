@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this , IntroActivity.class);
             startActivity(intent);
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("sjouldShowIntro", false);
+            editor.putBoolean("shouldShowIntro", false);
             editor.commit();
             this.finish();//kill main activity
         }
