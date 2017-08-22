@@ -2,10 +2,8 @@ package hagai.edu.multitouchandappintro;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
-import hagai.edu.multitouchandappintro.appintro.IntroActivity;
+import android.support.v7.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -13,16 +11,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SharedPreferences prefs = getSharedPreferences("appIntro", MODE_PRIVATE);
-        boolean shouldShowIntro = prefs.getBoolean("shouldShowIntro", false/*default*/);
+        SharedPreferences prefs = getSharedPreferences("appIntroduction", MODE_PRIVATE);
+        boolean shouldShowIntro = prefs.getBoolean("shouldShowIntro", true/*default*/);
 
         if (shouldShowIntro){
-            Intent intent = new Intent(this , IntroActivity.class);
+            Intent intent = new Intent(this,PaoloIntroActivity.class);
             startActivity(intent);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("shouldShowIntro", false);
-            editor.commit();
-            this.finish();//kill main activity
+            finish();//kill main activity
         }
     }
 }
